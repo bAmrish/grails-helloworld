@@ -1,0 +1,44 @@
+FROM ubuntu:16.04
+
+MAINTAINER Amrish Bharatiya <bamrish@gmail.com>
+
+# RUN apt-get update && apt-get install -y openjdk-8-jdk && apt-get install -y curl && apt-get install -y unzip && apt-get install zip
+RUN apt-get update && apt-get install -y openjdk-8-jdk curl unzip zip
+
+# RUN export SDKMAN_DIR="/usr/local/sdkman"
+ENV SDKMAN_DIR /usr/local/sdkman
+
+RUN curl -s get.sdkman.io | bash
+
+COPY sdkman-install.sh /
+
+RUN chmod u+x sdkman-install.sh
+
+RUN ["/bin/bash", "-c", "/sdkman-install.sh"]
+
+RUN cat ~/.import 
+
+ENV GRAILS_HOME="$(cat ~/.import)"
+
+ENV PATH="$GRAILS_HOME:$PATH"
+
+RUN export
+
+RUN mkdir app
+
+COPY . app
+
+WORKDIR app
+
+EXPOSE 8080
+
+# ENTRYPOINT ["grails", "run-app"]
+
+
+# RUN curl -s get.sdkman.io | bash
+
+# RUN chmod a+x $HOME/.sdkman/bin/sdkman-init.sh
+
+# RUN . $HOME/.sdkman/bin/sdkman-init.sh
+
+# RUN  sdk install grails 3.2.9
