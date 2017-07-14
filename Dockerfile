@@ -2,26 +2,31 @@ FROM ubuntu:16.04
 
 MAINTAINER Amrish Bharatiya <bamrish@gmail.com>
 
-RUN apt-get update && apt-get install -y openjdk-8-jdk curl unzip zip
+RUN apt-get update && apt-get install -y openjdk-8-jdk curl
 
-RUN curl -L#O https://github.com/grails/grails-core/releases/download/v3.2.11/grails-3.2.11.zip
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
-RUN unzip grails-3.2.11.zip
+ENV CATALINA_HOME /opt/tomcat
 
-RUN mv grails-3.2.11 /usr/lib
+# WORKDIR /tmp
 
-RUN ln -s /usr/lib/grails-3.2.11/bin/grails /usr/bin/grails
+# RUN curl -O http://apache.mirrors.ionfish.org/tomcat/tomcat-8/v8.5.5/bin/apache-tomcat-8.5.5.tar.gz
+RUN curl -O http://apache.mirrors.ionfish.org/tomcat/tomcat-8/v8.5.16/bin/apache-tomcat-8.5.16.tar.gz
 
-RUN grails -version
+RUN mkdir /opt/tomcat
 
-RUN mkdir app
+RUN tar xzvf apache-tomcat-8*tar.gz -C /opt/tomcat --strip-components=1
 
-COPY . app
+RUN rm -rf  ${CATALINA_HOME}/webapps/examples \
+			${CATALINA_HOME}/webapps/docs \
+			${CATALINA_HOME}/webapps/host-manager \
+			${CATALINA_HOME}/RELEASE-NOTES \
+			${CATALINA_HOME}/RUNNING.txt ${CATALINA_HOME}/bin/*.bat  \
+			${CATALINA_HOME}/bin/*.tar.gz
 
-WORKDIR app
-
-RUN grails compile
+ADD build/libs/helloworld.war ${CATALINA_HOME}/webapps/
 
 EXPOSE 8080
 
-ENTRYPOINT ["grails", "run-app"]
+CMD /opt/tomcat/bin/catalina.sh run
+# ENTRYPOINT service tomat8 start
